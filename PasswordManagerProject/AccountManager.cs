@@ -9,10 +9,10 @@ namespace PasswordManagerProject
     internal class AccountManager
     {
         public List<Account> AccountList;
-        public string jsonFileRoute;
-        public AccountManager(string file)
+        
+        public AccountManager(List<Account> list)
         {
-           jsonFileRoute = file;
+           AccountList = list;
         }
 
         public void AddAccount(Account account)
@@ -25,12 +25,22 @@ namespace PasswordManagerProject
             AccountList.RemoveAt(index);
         }
 
+        public void DisplayAccounts()
+        {
+            int count = 1;
+            Console.WriteLine(" ====================================================================");
+            foreach (Account account in AccountList)
+            {
+            Console.WriteLine(" || "+count+".            "+account.Description+"                            ||" );
+                count++;
+            }
+            Console.WriteLine(" ====================================================================");
+        }
+
         public void UpdatePassword(int index)
         {
-            Account accountToUpdate = AccountList[index];
-            accountToUpdate.UpdatePassword();
-            
-            
+
+            return;
         }
     }
 }

@@ -12,21 +12,8 @@ namespace PasswordManagerProject
         public string UserId { get; set; }
         public string LoginUrl { get; set; }
         public string AccountNumber { get; set; }
+        public Password Password { get; set; }         
 
-        public Password Password { get; set; }
-
-
-        public Account()
-        {
-          new Account();
-        }
-
-        public void UpdatePassword()
-        {
-            Console.WriteLine("Enter new Password");
-            string newPassword = Console.ReadLine();
-
-
-        }
+   
     }
 }

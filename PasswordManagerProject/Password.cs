@@ -14,14 +14,7 @@ namespace PasswordManagerProject
         public string StrengthText { get; set; }
         public string LastReset { get; set; }
 
-        public Password(string value)
-        {
-            Value = value;
-            PasswordTester pt = new PasswordTester(Value);
-
-            StrengthText = pt.StrengthLabel;
-            StrengthNumber = pt.StrengthPercent.ToString();
-        }
+        
 
     }
 }
