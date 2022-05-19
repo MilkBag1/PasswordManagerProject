@@ -14,6 +14,13 @@ namespace PasswordManagerProject
         public string AccountNumber { get; set; }
         public Password Password { get; set; }         
 
-   
+        public Account(string description, string userId, string loginUrl, string accountNumber, Password password)
+        {
+            Description = description;
+            UserId = userId;
+            LoginUrl = loginUrl;
+            AccountNumber = accountNumber;
+            Password = password;
+        }
     }
 }
