@@ -10,11 +10,17 @@ namespace PasswordManagerProject
     {
 
         public string Value { get; set; }
-        public string StrengthNumber { get; set; }
+        public int StrengthNumber { get; set; }
         public string StrengthText { get; set; }
         public string LastReset { get; set; }
 
         
-
+        public Password(string? value, int strengthNumber, string? strengthText, string? lastReset)
+        {
+            Value = value;
+            StrengthNumber = strengthNumber;
+            StrengthText = strengthText;
+            LastReset = lastReset;
+        }
     }
 }

@@ -27,16 +27,25 @@ namespace PasswordManagerProject
         {
              
             string filePath = "C:\\tmp\\AccountData.json";
-            string schemaPath = "C:\\tmp\\AccountData.json";
+            string schemaPath = "C:\\tmp\\jsonSchema.json";
             bool run = true;
+            List<Root> data = new List<Root>();
+                        
+            if (!File.Exists(filePath))
+            {
+                using (StreamWriter sw = File.CreateText(filePath));
+                
+            }
+            else
+            {
+                string jsonText = File.ReadAllText(filePath);
 
-            string jsonText = File.ReadAllText(filePath);
+                data = JsonConvert.DeserializeObject<List<Root>>(jsonText);
+                                
+            }
 
-            var data = JsonConvert.DeserializeObject<List<Root>>(jsonText);
-                                                  
             AccountManager manager = new AccountManager(data, filePath, schemaPath);
 
-            
             //loading phase completed, now user interaction
             while (run)
             {
@@ -62,7 +71,7 @@ namespace PasswordManagerProject
                 }
                 else
                 {
-                    
+                                        
                     switch (command)
                     {
                         case ("a"):

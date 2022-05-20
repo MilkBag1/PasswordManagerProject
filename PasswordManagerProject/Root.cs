@@ -9,5 +9,12 @@ namespace PasswordManagerProject
     internal class Root
     {
         public Account Account { get; set; }
+
+        public Root(Account account)
+        {
+           
+            Account = account;
+
+        }
     }
 }
