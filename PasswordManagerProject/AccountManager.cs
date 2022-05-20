@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,11 +24,92 @@ namespace PasswordManagerProject
         public void AddAccount()
         {
             
+            Console.WriteLine();
+            Console.WriteLine("Please enter in values for the following fields: ");
+            Console.WriteLine();
+
+            Console.WriteLine("Description: ");
+            var Description = Console.ReadLine();
+            
+
+            Console.WriteLine("User ID: ");
+            var userID = Console.ReadLine();
+            
+
+            Console.WriteLine("Password: ");
+            var passwordValue = Console.ReadLine();
+            
+            PasswordTester pt = new PasswordTester(passwordValue);
+            var StremgthText = pt.StrengthLabel;
+            var StrengthNumber = pt.StrengthPercent;
+
+            Password newPassword = new Password(passwordValue, StrengthNumber, StremgthText, DateTime.Now.ToString());
+
+            Console.WriteLine("Login url: ");
+            var login = Console.ReadLine();
+            
+
+            Console.WriteLine("Account #: ");
+            var accountNumber = Console.ReadLine();
+
+            Account newAccount = new Account(Description, userID, login, accountNumber, newPassword);
+
+            Root newRoot = new Root(newAccount);
+
+            //TODO: IT WORKS! 
+            var jsonData = JsonConvert.SerializeObject(newRoot);
+            JSchema schema = JSchema.Parse(File.ReadAllText(schemaPath));
+            JObject jsonObject = JObject.Parse(jsonData);
+            IList<string> errorMessages = new List<string>();
+
+            if(jsonObject.IsValid(schema, out errorMessages))
+            {
+                //ADD TO LIST IF GOOD + UPDATE JSON
+                AccountList.Add(newRoot);
+                UpdateJSON();
+            }
+            else
+            {
+                foreach(string evt in errorMessages)
+                {
+                    Console.WriteLine(evt);
+                }
+            }
+
+        
+
         }
 
         public void DeleteAccount(int index)
         {
-            AccountList.RemoveAt(index);
+            bool run = true;
+            while (run) {
+                Console.WriteLine("Are you sure you want to delete the account data for " + AccountList[index].Account.Description + " ?");
+                Console.WriteLine("type yes / no");
+                var command = Console.ReadLine();
+
+                switch (command)
+                {
+                    case ("yes"):
+                        Console.WriteLine("Deleting Account");
+                        AccountList.Remove(AccountList[index]);
+                        UpdateJSON();
+                        run = false;
+                        break;
+
+                    case ("no"):
+                        Console.WriteLine("Returning to the main Menu");
+                        run = false;
+                        break;
+
+                    default:
+                        Console.WriteLine("error: invalid entry. Enter either yes or no");
+                        break;
+                }
+            }
+            
+            
+
         }
 
         public void DisplayAccounts()
@@ -113,6 +196,12 @@ namespace PasswordManagerProject
 
         }
 
+        public void UpdateJSON()
+        {
+            var jsonData = JsonConvert.SerializeObject(AccountList);
+            File.WriteAllText(dataPath, jsonData);
+        }
+
         public void UpdatePassword(int index)
         {
             DateTime date = DateTime.Now;   
@@ -124,11 +213,10 @@ namespace PasswordManagerProject
 
             selectedAccount.Account.Password.Value = newPassword;
             selectedAccount.Account.Password.StrengthText = pt.StrengthLabel;
-            selectedAccount.Account.Password.StrengthNumber = pt.StrengthPercent.ToString();
+            selectedAccount.Account.Password.StrengthNumber = pt.StrengthPercent;
             selectedAccount.Account.Password.LastReset = date.ToString();
 
-            var jsonData = JsonConvert.SerializeObject(AccountList);
-            File.WriteAllText(dataPath, jsonData);
+            UpdateJSON();
             
         }
     }
