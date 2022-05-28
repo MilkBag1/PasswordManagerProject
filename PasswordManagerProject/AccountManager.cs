@@ -1,4 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿/*
+ * Program:         PasswordManager.exe
+ * Module:          AccountManager.cs
+ * Date:            2020-05-28
+ * Author:          Matt Taylor
+ * Description:     Account Manager serves as main object for program functionality
+ *                  performing writing and data manipulation
+ */
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
 using System;
@@ -23,21 +31,89 @@ namespace PasswordManagerProject
 
         public void AddAccount()
         {
-            
+            bool valid = false;
+            string Description = "";
+            string userID = "";
+            string passwordValue = "";
+
             Console.WriteLine();
             Console.WriteLine("Please enter in values for the following fields: ");
             Console.WriteLine();
 
-            Console.WriteLine("Description: ");
-            var Description = Console.ReadLine();
             
+            //DESCRIPTION VALIDATION
+            while (!valid) 
+            {
+                Console.WriteLine("Description: ");
+                Description = Console.ReadLine();
+                char[] validString = Description.ToCharArray();
+                if (validString.Length == 0)
+                {
+                    Console.WriteLine("Error: Description is required.");
+                    Console.WriteLine();
 
-            Console.WriteLine("User ID: ");
-            var userID = Console.ReadLine();
-            
+                }
+                else if (validString[0].Equals(' '))
+                {
+                    Console.WriteLine("Error: first character cannot be blank");
+                    Console.WriteLine();
+                }
+                else
+                {
+                    valid = true;
+                }
+            }
+            valid = false;
 
-            Console.WriteLine("Password: ");
-            var passwordValue = Console.ReadLine();
+            //USERID VALIDATION
+            while (!valid)
+            {
+                Console.WriteLine("UserID: ");
+                userID = Console.ReadLine();
+                char[] validString = userID.ToCharArray();
+                if (validString.Length == 0)
+                {
+                    Console.WriteLine("Error: userID is required.");
+                    Console.WriteLine();
+
+                }
+                else if (validString[0].Equals(' '))
+                {
+                    Console.WriteLine("Error: first character cannot be blank");
+                    Console.WriteLine();
+                }
+                else
+                {
+                    valid = true;
+                }
+            }
+            valid = false;
+
+            //PASSWORD VALIDATION
+            while (!valid)
+            {
+                Console.WriteLine("Password: ");
+                passwordValue = Console.ReadLine();
+                char[] validString = passwordValue.ToCharArray();
+                if (validString.Length == 0)
+                {
+                    Console.WriteLine("Error: password is required.");
+                    Console.WriteLine();
+
+                }
+                else if (!checkPassword(validString))
+                {
+                    Console.WriteLine("Error: no blank chars in pasword");
+                    Console.WriteLine();
+                }
+                else
+                {
+                    valid = true; 
+                }
+
+                
+            }
+                    
             
             PasswordTester pt = new PasswordTester(passwordValue);
             var StremgthText = pt.StrengthLabel;
@@ -47,6 +123,9 @@ namespace PasswordManagerProject
 
             Console.WriteLine("Login url: ");
             var login = Console.ReadLine();
+            if (login.Equals("")){
+                login = "https://w";
+            }
             
 
             Console.WriteLine("Account #: ");
@@ -56,7 +135,7 @@ namespace PasswordManagerProject
 
             Root newRoot = new Root(newAccount);
 
-            //TODO: IT WORKS! 
+            //VALIDATE NEW ACCOUNT AGAINST THE SCHEMA
             var jsonData = JsonConvert.SerializeObject(newRoot);
             JSchema schema = JSchema.Parse(File.ReadAllText(schemaPath));
             JObject jsonObject = JObject.Parse(jsonData);
@@ -202,12 +281,50 @@ namespace PasswordManagerProject
             File.WriteAllText(dataPath, jsonData);
         }
 
+        public bool checkPassword(char[] stringToCheck)
+        {
+            //returns false if blanks in password
+            foreach (char c in stringToCheck)
+            {
+                if (c == ' ')
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         public void UpdatePassword(int index)
         {
+            string newPassword = "";
+            bool valid = false;
             DateTime date = DateTime.Now;   
             Root selectedAccount = AccountList[index];
-            Console.WriteLine("New Password:   ");
-            var newPassword = Console.ReadLine();
+
+            //PASSWORD VALIDATION
+            while (!valid)
+            {
+                Console.WriteLine("New Password: ");
+                newPassword = Console.ReadLine();
+                char[] validString = newPassword.ToCharArray();
+                if (validString.Length == 0)
+                {
+                    Console.WriteLine("Error: password is required.");
+                    Console.WriteLine();
+
+                }
+                else if (!checkPassword(validString))
+                {
+                    Console.WriteLine("Error: no blank chars in pasword");
+                    Console.WriteLine();
+                }
+                else
+                {
+                    valid = true;
+                }
+
+
+            }
 
             PasswordTester pt = new PasswordTester(newPassword);
 
@@ -219,5 +336,6 @@ namespace PasswordManagerProject
             UpdateJSON();
             
         }
+
     }
 }

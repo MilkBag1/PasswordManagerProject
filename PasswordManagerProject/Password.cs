@@ -1,4 +1,11 @@
-﻿using System;
+﻿/*
+ * Program:         PasswordManager.exe
+ * Module:          Password.cs
+ * Date:            2020-05-28
+ * Author:          Matt Taylor
+ * Description:     Password class
+ */
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

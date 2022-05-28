@@ -1,11 +1,9 @@
 ﻿/*
  * Program:         PasswordManager.exe
  * Module:          PasswordManager.cs
- * Date:            <enter a date>
- * Author:          <enter your name>
- * Description:     Some free starting code for INFO-3138 project 1, the Password Manager
- *                  application. All it does so far is demonstrate how to obtain the system date 
- *                  and how to use the PasswordTester class provided.
+ * Date:            2020-05-28
+ * Author:          Matt Taylor
+ * Description:     Password Manager Program working with JSON
  */
 
 using System;
@@ -26,11 +24,13 @@ namespace PasswordManagerProject
         static void Main(string[] args)
         {
              
-            string filePath = "C:\\tmp\\AccountData.json";
-            string schemaPath = "C:\\tmp\\jsonSchema.json";
+            string filePath = "C:\\Temp\\AccountData.json";
+            string schemaPath = "C:\\Temp\\jsonSchema.json";
             bool run = true;
             List<Root> data = new List<Root>();
-                        
+            List<Root> validAccountData = new List<Root>();
+
+            //Load data and create account manager
             if (!File.Exists(filePath))
             {
                 using (StreamWriter sw = File.CreateText(filePath));
@@ -41,12 +41,27 @@ namespace PasswordManagerProject
                 string jsonText = File.ReadAllText(filePath);
 
                 data = JsonConvert.DeserializeObject<List<Root>>(jsonText);
+
+                foreach(Root account in data)
+                {
+                    var jsonData = JsonConvert.SerializeObject(account);
+                    JSchema schema = JSchema.Parse(File.ReadAllText(schemaPath));
+                    JObject jsonObject = JObject.Parse(jsonData);
+                    IList<string> errorMessages = new List<string>();
+
+                    if (jsonObject.IsValid(schema, out errorMessages))
+                    {
+                        validAccountData.Add(account);
+                    }
+                }
                                 
             }
 
-            AccountManager manager = new AccountManager(data, filePath, schemaPath);
 
-            //loading phase completed, now user interaction
+
+            AccountManager manager = new AccountManager(validAccountData, filePath, schemaPath);
+
+            //User interaction
             while (run)
             {
 
