@@ -16,10 +16,10 @@ namespace PasswordManagerProject
     internal class Password
     {
 
-        public string Value { get; set; }
-        public int StrengthNumber { get; set; }
-        public string StrengthText { get; set; }
-        public string LastReset { get; set; }
+        public string? Value { get; set; }
+        public int? StrengthNumber { get; set; }
+        public string? StrengthText { get; set; }
+        public string? LastReset { get; set; }
 
         
         public Password(string? value, int strengthNumber, string? strengthText, string? lastReset)
