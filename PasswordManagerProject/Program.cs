@@ -23,12 +23,15 @@ namespace PasswordManagerProject
     {
         static void Main(string[] args)
         {
-             
-            string filePath = "C:\\Temp\\AccountData.json";
-            string schemaPath = "C:\\Temp\\jsonSchema.json";
+            //Files for JSON schema and Account Data are in debug//net6.0//JSON 
+            //Working directory should not be changed in order for program functionality
+
+            string filePath = Directory.GetCurrentDirectory() + "\\JSON\\AccountData.json";
+            string schemaPath = Directory.GetCurrentDirectory() + "\\JSON\\jsonSchema.json";
+
+
             bool run = true;
-            List<Root> data = new List<Root>();
-            List<Root> validAccountData = new List<Root>();
+            List<Root> AccountData = new List<Root>();
 
             //Load data and create account manager
             if (!File.Exists(filePath))
@@ -40,26 +43,14 @@ namespace PasswordManagerProject
             {
                 string jsonText = File.ReadAllText(filePath);
 
-                data = JsonConvert.DeserializeObject<List<Root>>(jsonText);
+                AccountData = JsonConvert.DeserializeObject<List<Root>>(jsonText);
 
-                foreach(Root account in data)
-                {
-                    var jsonData = JsonConvert.SerializeObject(account);
-                    JSchema schema = JSchema.Parse(File.ReadAllText(schemaPath));
-                    JObject jsonObject = JObject.Parse(jsonData);
-                    IList<string> errorMessages = new List<string>();
-
-                    if (jsonObject.IsValid(schema, out errorMessages))
-                    {
-                        validAccountData.Add(account);
-                    }
-                }
+                
                                 
             }
 
 
-
-            AccountManager manager = new AccountManager(validAccountData, filePath, schemaPath);
+            AccountManager manager = new AccountManager(AccountData, filePath, schemaPath);
 
             //User interaction
             while (run)
@@ -77,7 +68,7 @@ namespace PasswordManagerProject
                     if (commandNumber < 1 || commandNumber > manager.AccountList.Count())
                     {
                         Console.WriteLine("Invalid option");
-                                            }
+                    }
                     else
                     {
                         manager.AccountSelection(commandNumber);
@@ -97,11 +88,11 @@ namespace PasswordManagerProject
                             break;
                         case ("x"):
                             run = false;
-                            Console.WriteLine("Thank you for using the account management program");
+                            Console.WriteLine("Thank you for using the password management system");
                             break;
                         case ("X"):
                             run = false;
-                            Console.WriteLine("Thank you for using the account management program");
+                            Console.WriteLine("Thank you for using the password management system");
                             break;
 
                             default:

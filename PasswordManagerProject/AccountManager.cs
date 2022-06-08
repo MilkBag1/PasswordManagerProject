@@ -122,16 +122,16 @@ namespace PasswordManagerProject
             Password newPassword = new Password(passwordValue, StrengthNumber, StremgthText, DateTime.Now.ToString());
 
             Console.WriteLine("Login url: ");
-            var login = Console.ReadLine();
-            if (login.Equals("")){
-                login = "https://w";
+            var url = Console.ReadLine();
+            if (!url.Contains("https://") && !url.Equals("")){
+                url = "https://" + url;
             }
             
 
             Console.WriteLine("Account #: ");
             var accountNumber = Console.ReadLine();
 
-            Account newAccount = new Account(Description, userID, login, accountNumber, newPassword);
+            Account newAccount = new Account(Description, userID, url, accountNumber, newPassword);
 
             Root newRoot = new Root(newAccount);
 
@@ -151,8 +151,10 @@ namespace PasswordManagerProject
             {
                 foreach(string evt in errorMessages)
                 {
+                    Console.WriteLine("ACCOUNT ERROR: ");
                     Console.WriteLine(evt);
                 }
+                Console.WriteLine("ACCOUNT ERROR: Could not Add account, try again and ensure all fields are filled out correctly.");
             }
 
         
@@ -223,54 +225,63 @@ namespace PasswordManagerProject
 
         public void AccountSelection(int index)
         {
+            bool run = true;
+
             int selectedIndex = index - 1;
             Root accountSelected = AccountList[selectedIndex];
-            Console.WriteLine();
-            Console.WriteLine(" ====================================================================");
-            Console.WriteLine(" ||   " + index + ".     " + accountSelected.Account.Description + "                                       ||");
-            Console.WriteLine(" ====================================================================");
-            Console.WriteLine("  UserID:            " + accountSelected.Account.UserId);
-            Console.WriteLine("  Password:          " + accountSelected.Account.Password.Value);
-            Console.WriteLine("  Password Strength: " + accountSelected.Account.Password.StrengthText +" (" +accountSelected.Account.Password.StrengthNumber  +"%)");
-            Console.WriteLine("  Password Reset:    " + accountSelected.Account.Password.LastReset);
-            Console.WriteLine("  Login url:         " + accountSelected.Account.LoginUrl);
-            Console.WriteLine("  Account #:         " + accountSelected.Account.AccountNumber);
-            Console.WriteLine(" ====================================================================");
-            Console.WriteLine();
-            Console.WriteLine("     Press P to change the password");
-            Console.WriteLine("     Press D to delete this entry ");
-            Console.WriteLine("     Press M to return to the main menu");
-            Console.WriteLine();
-            Console.WriteLine(" ====================================================================");
-            Console.WriteLine();
-            Console.WriteLine("     Enter a command: ");
-
-            var command = Console.ReadLine();
-            
-            switch (command)
+            while (run)
             {
-                case ("p"):
-                    UpdatePassword(selectedIndex);
-                    break;
-                case ("P"):
-                    UpdatePassword(selectedIndex);
-                    break;
-                case ("d"):
-                    DeleteAccount(selectedIndex);
-                    break;
-                case ("D"):
-                    DeleteAccount(selectedIndex);
-                    break;
-                case ("m"):
-                    Console.WriteLine("  Returning to the main menu.");
-                    break;
-                case ("M"):
-                    Console.WriteLine("  Returning to the main menu.");
-                    break;
+                Console.WriteLine();
+                Console.WriteLine(" ====================================================================");
+                Console.WriteLine(" ||   " + index + ".     " + accountSelected.Account.Description + "                                       ||");
+                Console.WriteLine(" ====================================================================");
+                Console.WriteLine("  UserID:            " + accountSelected.Account.UserId);
+                Console.WriteLine("  Password:          " + accountSelected.Account.Password.Value);
+                Console.WriteLine("  Password Strength: " + accountSelected.Account.Password.StrengthText + " (" + accountSelected.Account.Password.StrengthNumber + "%)");
+                Console.WriteLine("  Password Reset:    " + accountSelected.Account.Password.LastReset);
+                Console.WriteLine("  Login url:         " + accountSelected.Account.LoginUrl);
+                Console.WriteLine("  Account #:         " + accountSelected.Account.AccountNumber);
+                Console.WriteLine(" ====================================================================");
+                Console.WriteLine();
+                Console.WriteLine("     Press P to change the password");
+                Console.WriteLine("     Press D to delete this entry ");
+                Console.WriteLine("     Press M to return to the main menu");
+                Console.WriteLine();
+                Console.WriteLine(" ====================================================================");
+                Console.WriteLine();
+                Console.WriteLine("     Enter a command: ");
 
-                default:
-                    Console.WriteLine("Error; invalid input, please enter a valid command");
-                    break;
+                var command = Console.ReadLine();
+
+                switch (command)
+                {
+                    case ("p"):
+                        UpdatePassword(selectedIndex);
+                        break;
+                    case ("P"):
+                        UpdatePassword(selectedIndex);
+                        break;
+                    case ("d"):
+                        DeleteAccount(selectedIndex);
+                        run = false;
+                        break;
+                    case ("D"):
+                        DeleteAccount(selectedIndex);
+                        run = false;
+                        break;
+                    case ("m"):
+                        Console.WriteLine("  Returning to the main menu.");
+                        run = false;
+                        break;
+                    case ("M"):
+                        Console.WriteLine("  Returning to the main menu.");
+                        run = false;
+                        break;
+
+                    default:
+                        Console.WriteLine("Error; invalid input, please enter a valid command");
+                        break;
+                }
             }
 
         }
@@ -333,7 +344,26 @@ namespace PasswordManagerProject
             selectedAccount.Account.Password.StrengthNumber = pt.StrengthPercent;
             selectedAccount.Account.Password.LastReset = date.ToString();
 
-            UpdateJSON();
+            //VALIDATE NEW ACCOUNT AGAINST THE SCHEMA
+            var jsonData = JsonConvert.SerializeObject(selectedAccount);
+            JSchema schema = JSchema.Parse(File.ReadAllText(schemaPath));
+            JObject jsonObject = JObject.Parse(jsonData);
+            IList<string> errorMessages = new List<string>();
+
+            if (jsonObject.IsValid(schema, out errorMessages))
+            {
+                // UPDATE JSON
+                UpdateJSON();
+            }
+            else
+            {
+                foreach (string evt in errorMessages)
+                {
+                    Console.WriteLine(evt);
+                }
+            }
+
+            
             
         }
 
